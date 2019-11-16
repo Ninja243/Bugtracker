@@ -1,0 +1,87 @@
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from .models import Bug, Project, ProjectType
+#from django.http import HttpResponse
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import logout, authenticate, login
+from django.contrib import messages
+from django.contrib.auth.forms import AuthenticationForm
+from .forms import NewUserForm
+
+# Create your views here.
+# ok
+
+
+def homepage(request):
+    #return HttpResponse("Test")
+    return render(request = request,
+        template_name = 'main/home.html',
+        context = {'types':ProjectType.objects.all}
+        )
+        
+def single_slug(request, single_slug):
+    types = [t.type_slug for t in ProjectType.objects.all()]
+    if single_slug in types:
+        matching_projects = Project.objects.filter(project_type__type_slug=single_slug)
+        project_type_urls = {}
+        for m in matching_projects.all():
+            first_bug = Bug.objects.filter(project__project_name=m.project_name)
+            print(first_bug[0].bug_slug)
+            project_type_urls[m] = first_bug[0].bug_slug
+        return render(request=request, template_name="main/type.html",
+            context={"project_type": matching_projects, "first_bugs": project_type_urls})
+        #return HttpResponse(f"{single_slug} is a type")
+    bugs = [b.bug_slug for b in Bug.objects.all()]
+    if single_slug in bugs:
+        this_bug = Bug.objects.get(bug_slug=single_slug)
+        related_bugs = Bug.objects.filter(project__project_slug=this_bug.project).order_by("bug_published")
+        this_bug_index = list(related_bugs).index(this_bug)
+        return render(request=request, template_name="main/bug.html",
+            context={"bug":this_bug, "sidebar":related_bugs, "index":this_bug_index})
+        #return HttpResponse(f"{single_slug} is a bug")
+    return HttpResponse(f"{single_slug}")
+
+def register(request):
+    if request.method == "POST":
+        form = NewUserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f"Hey {username}, your account's been created!")
+            login(request,user)
+            return redirect("main:homepage")
+        else:
+            for msg in form.error_messages:
+                #print(form.error_messages[msg])
+                messages.error(request, f"{msg}: {form.error_messages[msg]}")
+    #form = UserCreationForm
+            return render(request = request,
+                template_name = "main/register.html",
+                context={"form":form})
+    else:
+        form = NewUserForm
+        return render(request = request, template_name = "main/register.html", context = {"form":form})
+        
+def logout_request(request):
+    logout(request)
+    messages.info(request, "Goodbye!")
+    return redirect("main:homepage")
+    
+def login_request(request):
+    if request.method == "POST":
+        form = AuthenticationForm(request=request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"Hey {username}, welcome back!")
+                return redirect("main:homepage")
+            else:
+                messages.error(request, "Invalid username or password, please check it and try again.")
+        else:
+            messages.error(request, "Invalid username or password, please check it and try again.")
+    else:    
+        form = AuthenticationForm()
+        return render(request = request, template_name = "main/login.html", context ={"form":form})

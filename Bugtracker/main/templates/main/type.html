@@ -1,0 +1,21 @@
+{% extends 'main/header.html' %}
+
+{% block content %}
+
+    <div class="row">
+        {% for buggy_project, fbug in first_bugs.items %}
+            <div class="col s12 m6 l4">
+                <a href="{{fbug}}", style="color:#000">
+                    <div class="card hoverable">
+                        <div class="card-content">
+                            <div
+                            class="card-title">{{buggy_project.project_name}}</div>
+                            <!--<p style="font-size:70%">Published {{tut.tutorial_published}}</p>-->
+                            <p>{{buggy_project.project_summary}}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
