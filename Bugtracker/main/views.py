@@ -45,7 +45,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
-            messages.success(request, f"Hey {username}, your account's been created!")
+            messages.success(request, "Hey "+username+", your account's been created!")
             login(request,user)
             return redirect("main:homepage")
         else:
