@@ -38,9 +38,7 @@ def single_slug(request, single_slug):
         this_bug_index = list(related_bugs).index(this_bug)
         return render(request=request, template_name="main/bug.html",
             context={"bug":this_bug, "sidebar":related_bugs, "index":this_bug_index})
-        #return HttpResponse(f"{single_slug} is a bug")
-    return HttpResponse(f"{single_slug}")
-
+            
 def register(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
