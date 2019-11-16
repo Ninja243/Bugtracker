@@ -25,6 +25,7 @@ def single_slug(request, single_slug):
         matching_projects = Project.objects.filter(project_type__type_slug=single_slug)
         project_type_urls = {}
         for m in matching_projects.all():
+<<<<<<< HEAD
             first_bug = Bug.objects.filter(project__project_name=m.project_name)
             print(first_bug[0].bug_slug)
             project_type_urls[m] = first_bug[0].bug_slug
@@ -39,6 +40,16 @@ def single_slug(request, single_slug):
         return render(request=request, template_name="main/bug.html",
             context={"bug":this_bug, "sidebar":related_bugs, "index":this_bug_index})
         #return HttpResponse(f"{single_slug} is a bug")
+=======
+            first_bug = Bug.objects.filter(project__project=m.project_name)
+            project_type_urls[m] = first_bug.bug_slug
+        return render(request=request, template_name="main/type.html",
+            context={"project_type": matching_projects, "first_bugs": project_type_urls})
+        #return HttpResponse(f"{single_slug} is a type")
+    projects = [p.project_slug for p in Project.objects.all()]
+    if single_slug in projects:
+        return HttpResponse(f"{single_slug} is a project")
+>>>>>>> e09aa5bb554b5ee0f0c4f229761b01a354ecd0cb
     return HttpResponse(f"{single_slug}")
 
 def register(request):
