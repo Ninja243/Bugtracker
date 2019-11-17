@@ -51,7 +51,7 @@ def register(request):
         else:
             for msg in form.error_messages:
                 #print(form.error_messages[msg])
-                messages.error(request, f"{msg}: {form.error_messages[msg]}")
+                messages.error(request, msg+": "+form.error_messages[msg])
     #form = UserCreationForm
             return render(request = request,
                 template_name = "main/register.html",
@@ -74,7 +74,7 @@ def login_request(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.info(request, f"Hey {username}, welcome back!")
+                messages.info(request, "Hey "+username+", welcome back!")
                 return redirect("main:homepage")
             else:
                 messages.error(request, "Invalid username or password, please check it and try again.")
